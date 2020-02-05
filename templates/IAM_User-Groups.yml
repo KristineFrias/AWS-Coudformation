@@ -1,0 +1,38 @@
+Description: 'AWS CloudFormation IAM_Users_Groups_and_Policies Template: The template 
+  will create a new user, inline policy and add to specific IAM Groups. Note: This template 
+  also creates an AWSAccessKeyId/AWSSecretKey pair associated with the new user.'
+Parameters:
+  Password:
+    NoEcho: 'true'
+    Type: String
+    Description: New account password
+    MinLength: '8'
+    MaxLength: '41'
+    ConstraintDescription: the password must be between 8 and 41 characters
+  UserName:
+    NoEcho: 'false'
+    Type: String
+    Description: New account username
+    MinLength: '3'
+Resources:
+  User:
+    Type: AWS::IAM::User
+    Properties: 
+      Groups: 
+        - Admin
+      LoginProfile:
+        Password: !Ref 'Password'
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      UserName: !Ref 'UserName'
+  CFNKeys:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref 'User'
+Outputs:
+  AccessKey:
+    Value: !Ref 'CFNKeys'
+    Description: AWSAccessKeyId of new user
+  SecretKey:
+    Value: !GetAtt [CFNKeys, SecretAccessKey]
+    Description: AWSSecretAccessKey of new user
